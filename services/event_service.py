@@ -3,6 +3,7 @@ from datetime import datetime
 
 from services import calendar_service
 from models.event import Event
+from googleapiclient.errors import HttpError
 
 
 def add_attendee():
@@ -77,11 +78,14 @@ def print_events(events):
             typer.echo(f"{start} - {summary} (ID: {event_id})")
 
 
-def get_event_by_id(event_id):
+def get_event_by_id(event_id: str):
     service = calendar_service.get_calendar_service()
 
-    event = service.events().get(calendarId='primary', eventId=event_id).execute()
-    typer.echo(Event.convert_to_event(event))
-
-
-
+    try:
+        event = service.events().get(calendarId='primary', eventId=event_id).execute()
+        typer.echo(Event.convert_to_event(event))
+    except HttpError as error:
+        if error.resp.status == 404:
+            typer.echo(f"Event with ID {event_id} not found.")
+        else:
+            typer.echo(f"An error occurred: {error}")
