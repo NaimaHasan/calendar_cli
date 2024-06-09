@@ -10,7 +10,7 @@ def add_attendee():
     first_interation = True
     while True:
         if first_interation:
-            more_attendee = typer.confirm("Do you want to add attendee?", default=True)
+            more_attendee = typer.confirm("\nDo you want to add attendee?", default=True)
         else:
             more_attendee = typer.confirm("Do you want to more add attendee?", default=True)
 

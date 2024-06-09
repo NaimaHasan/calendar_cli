@@ -4,12 +4,13 @@ from datetime import datetime
 
 class Event:
     def __init__(self, summary: str, start_time: datetime, end_time: datetime,
-                 attendees: List[str] = None, event_id=None):
+                 attendees: List[str] = None, event_id=None, recurrence: List[str] = None):
         self.event_id = event_id
         self.summary = summary
         self.start_time = start_time
         self.end_time = end_time
         self.attendees = attendees
+        self.recurrence = recurrence
 
     def __str__(self):
         attendees_str = ', '.join(self.attendees) if self.attendees else 'None'
@@ -23,5 +24,6 @@ class Event:
             'summary': self.summary,
             'start': {'dateTime': self.start_time.isoformat(), 'timeZone': 'UTC'},
             'end': {'dateTime': self.end_time.isoformat(), 'timeZone': 'UTC'},
-            'attendees': [{'email': email} for email in self.attendees]
+            'attendees': [{'email': email} for email in self.attendees],
+            'recurrence': self.recurrence
         }
