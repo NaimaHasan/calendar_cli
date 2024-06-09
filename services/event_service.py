@@ -2,6 +2,7 @@ import typer
 from datetime import datetime
 
 from services import calendar_service
+from models.event import Event
 
 
 def add_attendee():
@@ -74,3 +75,13 @@ def print_events(events):
             summary = event.get('summary', 'No Title')
 
             typer.echo(f"{start} - {summary} (ID: {event_id})")
+
+
+def get_event_by_id(event_id):
+    service = calendar_service.get_calendar_service()
+
+    event = service.events().get(calendarId='primary', eventId=event_id).execute()
+    typer.echo(Event.convert_to_event(event))
+
+
+

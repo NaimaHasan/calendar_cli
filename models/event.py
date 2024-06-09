@@ -27,3 +27,15 @@ class Event:
             'attendees': [{'email': email} for email in self.attendees],
             'recurrence': self.recurrence
         }
+
+    @staticmethod
+    def convert_to_event(event_dict: Dict) -> 'Event':
+        start_time = datetime.fromisoformat(event_dict['start']['dateTime'])
+        end_time = datetime.fromisoformat(event_dict['end']['dateTime'])
+        attendees = [att['email'] for att in event_dict.get('attendees', [])]
+        return Event(
+            summary=event_dict['summary'],
+            start_time=start_time,
+            end_time=end_time,
+            attendees=attendees
+        )

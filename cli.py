@@ -51,5 +51,10 @@ def list_upcoming_events(max_results: Annotated[int, typer.Option(prompt=True)])
     event_service.print_events(events)
 
 
+@app.command()
+def get_event_by_id(event_id: Annotated[str, typer.Option(prompt=True)]):
+    event_service.get_event_by_id(event_id)
+
+
 if __name__ == "__main__":
     app()
