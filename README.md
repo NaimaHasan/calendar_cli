@@ -40,25 +40,25 @@ This project is a command-line interface (CLI) application built with Python's T
 ### Add Event
 
 ```bash
-
+python cli.py add-event
 ```
 
 ### Delete Event
 
 ```bash
-
+python cli.py delete-event id
 ```
 
-### Update Event
+### Add Recurring Event
 
 ```bash
-
+python cli.py add-recurring-event
 ```
 
 ### List Events
 
 ```bash
-
+python cli.py list-upcoming-events 
 ```
 
 ## Authentication
