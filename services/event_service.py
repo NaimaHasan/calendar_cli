@@ -1,6 +1,5 @@
 import typer
 from datetime import datetime
-
 from services import calendar_service
 from models.event import Event
 from googleapiclient.errors import HttpError
