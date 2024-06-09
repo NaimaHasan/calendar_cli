@@ -1,17 +1,36 @@
-import os
 import typer
-import datetime
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from googleapiclient.discovery import build
+from datetime import datetime
+from typing_extensions import Annotated
+from typing import List, Optional
+
+from services import calendar_service
+from services import event_service
+from models.event import Event
 
 app = typer.Typer(no_args_is_help=True)
 
 
 @app.command()
-def find_all_recipes():
-    typer.echo("HIIIIIIIIIIIIIIIII")
+def add_event(summary: Annotated[str, typer.Option(prompt=True)],
+              start_time: Annotated[datetime, typer.Option(prompt="\nTime formats: YYYY-MM-DD, YYYY-MM-DD HH:MM:SS\n"
+                                                                  "Start time")],
+              end_time: Annotated[datetime, typer.Option(prompt=True)]) -> None:
+    attendees = event_service.add_attendee()
+
+    event = Event(summary=summary, start_time=start_time, end_time=end_time, attendees=attendees)
+    event_service.create_event(event)
+
+
+@app.command()
+def delete_event(event_id: Annotated[str, typer.Option(prompt=True)]):
+    event_service.delete_event(event_id)
+
+
+@app.command()
+def list_upcoming_events(max_results: Annotated[int, typer.Option(prompt=True)]):
+    """List upcoming events in the primary calendar."""
+    events = event_service.get_upcoming_events(max_results)
+    event_service.print_events(events)
 
 
 if __name__ == "__main__":
