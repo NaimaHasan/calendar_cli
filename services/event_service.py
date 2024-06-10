@@ -59,37 +59,38 @@ def format_attendees(attendees):
 
 def create_event(event):
     """Creates an event in the Google Calendar."""
-    try:
-        service = calendar_service.get_calendar_service()
+    service = calendar_service.get_calendar_service()
+    if service:
+        try:
+            event_dictionary = event.convert_to_dictionary()
+            created_event = service.events().insert(calendarId='primary', body=event_dictionary).execute()
+            typer.echo(f'Event created: {created_event.get("htmlLink")}')
 
-        event_dictionary = event.convert_to_dictionary()
-        created_event = service.events().insert(calendarId='primary', body=event_dictionary).execute()
-        typer.echo(f'Event created: {created_event.get("htmlLink")}')
-
-    except HttpError as e:
-        typer.echo(f"An error occurred: {e}")
-    except ConnectionError:
-        typer.echo("No internet connection. Please check your network connection and try again.")
-    except ServerNotFoundError:
-        typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
+        except HttpError as e:
+            typer.echo(f"An error occurred: {e}")
+        except ConnectionError:
+            typer.echo("No internet connection. Please check your network connection and try again.")
+        except ServerNotFoundError:
+            typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
 
 
 def delete_event(event_id):
     """Deletes an event from the Google Calendar."""
-    try:
-        service = calendar_service.get_calendar_service()
-        service.events().delete(calendarId='primary', eventId=event_id).execute()
-        typer.echo('Event deleted')
+    service = calendar_service.get_calendar_service()
+    if service:
+        try:
+            service.events().delete(calendarId='primary', eventId=event_id).execute()
+            typer.echo('Event deleted')
 
-    except HttpError as e:
-        if e.resp.status == 404:
-            typer.echo(f"Event with ID {event_id} not found.")
-        else:
-            typer.echo(f"An error occurred: {e}")
-    except ConnectionError:
-        typer.echo("No internet connection. Please check your network connection and try again.")
-    except ServerNotFoundError:
-        typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
+        except HttpError as e:
+            if e.resp.status == 404:
+                typer.echo(f"Event with ID {event_id} not found.")
+            else:
+                typer.echo(f"An error occurred: {e}")
+        except ConnectionError:
+            typer.echo("No internet connection. Please check your network connection and try again.")
+        except ServerNotFoundError:
+            typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
 
 
 def get_upcoming_events(max_results):
@@ -106,22 +107,23 @@ def get_upcoming_events(max_results):
     events : List[Dict]
         A list of dictionaries representing the upcoming events.
     """
-    try:
-        service = calendar_service.get_calendar_service()
-        now = datetime.utcnow().isoformat() + 'Z'
+    service = calendar_service.get_calendar_service()
+    if service:
+        try:
+            now = datetime.utcnow().isoformat() + 'Z'
 
-        events_result = service.events().list(calendarId='primary', timeMin=now,
-                                              maxResults=max_results, singleEvents=True,
-                                              orderBy='startTime').execute()
-        events = events_result.get('items', [])
-        print_events(events)
+            events_result = service.events().list(calendarId='primary', timeMin=now,
+                                                  maxResults=max_results, singleEvents=True,
+                                                  orderBy='startTime').execute()
+            events = events_result.get('items', [])
+            print_events(events)
 
-    except HttpError as e:
-        typer.echo(f"An error occurred: {e}")
-    except ConnectionError:
-        typer.echo("No internet connection. Please check your network connection and try again.")
-    except ServerNotFoundError:
-        typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
+        except HttpError as e:
+            typer.echo(f"An error occurred: {e}")
+        except ConnectionError:
+            typer.echo("No internet connection. Please check your network connection and try again.")
+        except ServerNotFoundError:
+            typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
 
 
 def print_events(events):
@@ -141,17 +143,17 @@ def print_events(events):
 def get_event_by_id(event_id: str):
     """Retrieves and prints the details of a specific event by its ID."""
     service = calendar_service.get_calendar_service()
+    if service:
+        try:
+            event = service.events().get(calendarId='primary', eventId=event_id).execute()
+            typer.echo(Event.convert_to_event(event))
 
-    try:
-        event = service.events().get(calendarId='primary', eventId=event_id).execute()
-        typer.echo(Event.convert_to_event(event))
-
-    except HttpError as error:
-        if error.resp.status == 404:
-            typer.echo(f"Event with ID {event_id} not found.")
-        else:
-            typer.echo(f"An error occurred: {error}")
-    except ConnectionError:
-        typer.echo("No internet connection. Please check your network connection and try again.")
-    except ServerNotFoundError:
-        typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
+        except HttpError as error:
+            if error.resp.status == 404:
+                typer.echo(f"Event with ID {event_id} not found.")
+            else:
+                typer.echo(f"An error occurred: {error}")
+        except ConnectionError:
+            typer.echo("No internet connection. Please check your network connection and try again.")
+        except ServerNotFoundError:
+            typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
