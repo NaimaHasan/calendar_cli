@@ -6,6 +6,17 @@ from googleapiclient.errors import HttpError
 
 
 def add_attendee():
+    """
+    Prompts the user to add attendees to an event.
+
+    The function repeatedly asks the user if they want to add more attendees until they choose to stop.
+    It collects email addresses of the attendees and formats them appropriately.
+
+    Returns:
+    --------
+    formatted_attendees : List[str]
+        A list of formatted attendee email addresses.
+    """
     attendees = []
 
     first_interation = True
@@ -15,29 +26,38 @@ def add_attendee():
         else:
             more_attendee = typer.confirm("Do you want to more add attendee?", default=True)
 
+        first_interation = False
+
         if more_attendee:
             email = typer.prompt("Enter attendee email").strip()
             attendees.append(email)
         else:
             break
 
-    attendees = format_attendees(attendees)
+    formatted_attendees = format_attendees(attendees)
 
-    return attendees
+    return formatted_attendees
 
 
 def format_attendees(attendees):
+    """
+   Formats a list of attendees.
+   If the attendees are in dictionary format, extracts email addresses. Otherwise, returns the list as is.
+   """
     attendee_list = []
     if attendees:
         if isinstance(attendees[0], dict):
             for attendee in attendees:
                 email = attendee['email']
                 attendee_list.append(email)
+        else:
+            attendee_list = attendees
 
     return attendee_list
 
 
 def create_event(event):
+    """Creates an event in the Google Calendar."""
     service = calendar_service.get_calendar_service()
 
     event_dictionary = event.convert_to_dictionary()
@@ -46,6 +66,7 @@ def create_event(event):
 
 
 def delete_event(event_id):
+    """Deletes an event from the Google Calendar."""
     service = calendar_service.get_calendar_service()
 
     service.events().delete(calendarId='primary', eventId=event_id).execute()
@@ -53,6 +74,19 @@ def delete_event(event_id):
 
 
 def get_upcoming_events(max_results):
+    """
+    Retrieves a list of upcoming events from the Google Calendar.
+
+    Parameters:
+    -----------
+    max_results : int
+        The maximum number of upcoming events to retrieve.
+
+    Returns:
+    --------
+    events : List[Dict]
+        A list of dictionaries representing the upcoming events.
+    """
     service = calendar_service.get_calendar_service()
     now = datetime.utcnow().isoformat() + 'Z'
 
@@ -65,6 +99,7 @@ def get_upcoming_events(max_results):
 
 
 def print_events(events):
+    """Prints the details of a list of events."""
     if not events:
         typer.echo('No upcoming events found.')
 
@@ -78,6 +113,7 @@ def print_events(events):
 
 
 def get_event_by_id(event_id: str):
+    """Retrieves and prints the details of a specific event by its ID."""
     service = calendar_service.get_calendar_service()
 
     try:

@@ -15,7 +15,7 @@ def add_event(summary: Annotated[str, typer.Option(prompt=True)],
                   datetime, typer.Option(prompt="\nTime formats: YYYY-MM-DD, YYYY-MM-DD HH:MM:SS\n"
                                                 "Start time")],
               end_time: Annotated[datetime, typer.Option(prompt=True)]) -> None:
-    """Add an event."""
+    """Add a single event to the primary calendar."""
 
     attendees = event_service.add_attendee()
 
@@ -29,18 +29,19 @@ def add_recurring_event(summary: Annotated[str, typer.Option(prompt=True)],
                             datetime, typer.Option(prompt="\nTime formats: YYYY-MM-DD, YYYY-MM-DD HH:MM:SS\n"
                                                           "Start time")],
                         end_time: Annotated[datetime, typer.Option(prompt=True)]) -> None:
-    """Add a recurring event."""
+    """Add a recurring event to the primary calendar."""
 
     attendees = event_service.add_attendee()
-    recurrence = recurring_event_service.get_recurrence_rule()
+    recurrence_rule = recurring_event_service.add_recurrence_rule()
 
-    event = Event(summary=summary, start_time=start_time, end_time=end_time, attendees=attendees, recurrence=recurrence)
+    event = Event(summary=summary, start_time=start_time, end_time=end_time,
+                  attendees=attendees, recurrence=recurrence_rule)
     event_service.create_event(event)
 
 
 @app.command()
 def delete_event(event_id: Annotated[str, typer.Option(prompt=True)]):
-    """Delete event by its id."""
+    """Delete an event from the primary calendar by its ID."""
     event_service.delete_event(event_id)
 
 

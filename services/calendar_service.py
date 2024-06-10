@@ -8,18 +8,42 @@ SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 
 def get_calendar_service():
-    creds = None
+    """
+    Obtains the Google Calendar API service using OAuth2 credentials.
+
+    This function handles the authentication flow for accessing the Google Calendar API.
+    It checks for existing credentials in a 'token.json' file, refreshes them if expired,
+    or initiates a new authentication flow if necessary.
+
+    Returns:
+    --------
+    service : googleapiclient.discovery.Resource
+        A Resource object with methods for interacting with the Google Calendar API.
+    """
+
+    credentials = None
+
+    # Check if token.json file exists
     if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+        # Load the credentials from the token.json file
+        credentials = Credentials.from_authorized_user_file('token.json', SCOPES)
+
+    # If there are no valid credentials available, let the user log in
+    if not credentials or not credentials.valid:
+        if credentials and credentials.expired and credentials.refresh_token:
+            # Refresh the credentials if they have expired
+            credentials.refresh(Request())
         else:
+            # Prompt the user to log in if no valid credentials are found
             flow = InstalledAppFlow.from_client_secrets_file(
                 'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
+            credentials = flow.run_local_server(port=0)
+
+        # Save the credentials for the next run
         with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-    service = build('calendar', 'v3', credentials=creds)
+            token.write(credentials.to_json())
+
+    # Build the Google Calendar service
+    service = build('calendar', 'v3', credentials=credentials)
 
     return service
