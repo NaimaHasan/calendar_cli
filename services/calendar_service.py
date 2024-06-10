@@ -23,15 +23,12 @@ def get_calendar_service():
 
     credentials = None
 
-    # Check if token.json file exists
     if os.path.exists('token.json'):
         # Load the credentials from the token.json file
         credentials = Credentials.from_authorized_user_file('token.json', SCOPES)
 
-    # If there are no valid credentials available, let the user log in
     if not credentials or not credentials.valid:
         if credentials and credentials.expired and credentials.refresh_token:
-            # Refresh the credentials if they have expired
             credentials.refresh(Request())
         else:
             # Prompt the user to log in if no valid credentials are found
@@ -43,7 +40,6 @@ def get_calendar_service():
         with open('token.json', 'w') as token:
             token.write(credentials.to_json())
 
-    # Build the Google Calendar service
     service = build('calendar', 'v3', credentials=credentials)
 
     return service
