@@ -58,19 +58,29 @@ def format_attendees(attendees):
 
 def create_event(event):
     """Creates an event in the Google Calendar."""
-    service = calendar_service.get_calendar_service()
+    try:
+        service = calendar_service.get_calendar_service()
 
-    event_dictionary = event.convert_to_dictionary()
-    created_event = service.events().insert(calendarId='primary', body=event_dictionary).execute()
-    typer.echo(f'Event created: {created_event.get("htmlLink")}')
+        event_dictionary = event.convert_to_dictionary()
+        created_event = service.events().insert(calendarId='primary', body=event_dictionary).execute()
+        typer.echo(f'Event created: {created_event.get("htmlLink")}')
+
+    except HttpError as e:
+        typer.echo(f"An error occurred: {e}")
 
 
 def delete_event(event_id):
     """Deletes an event from the Google Calendar."""
-    service = calendar_service.get_calendar_service()
+    try:
+        service = calendar_service.get_calendar_service()
+        service.events().delete(calendarId='primary', eventId=event_id).execute()
+        typer.echo('Event deleted')
 
-    service.events().delete(calendarId='primary', eventId=event_id).execute()
-    typer.echo('Event deleted')
+    except HttpError as e:
+        if e.resp.status == 404:
+            typer.echo(f"Event with ID {event_id} not found.")
+        else:
+            typer.echo(f"An error occurred: {e}")
 
 
 def get_upcoming_events(max_results):
@@ -87,21 +97,26 @@ def get_upcoming_events(max_results):
     events : List[Dict]
         A list of dictionaries representing the upcoming events.
     """
-    service = calendar_service.get_calendar_service()
-    now = datetime.utcnow().isoformat() + 'Z'
+    try:
+        service = calendar_service.get_calendar_service()
+        now = datetime.utcnow().isoformat() + 'Z'
 
-    events_result = service.events().list(calendarId='primary', timeMin=now,
-                                          maxResults=max_results, singleEvents=True,
-                                          orderBy='startTime').execute()
-    events = events_result.get('items', [])
+        events_result = service.events().list(calendarId='primary', timeMin=now,
+                                              maxResults=max_results, singleEvents=True,
+                                              orderBy='startTime').execute()
+        events = events_result.get('items', [])
 
-    return events
+        return events
+
+    except HttpError as e:
+        typer.echo(f"An error occurred: {e}")
+        return []
 
 
 def print_events(events):
     """Prints the details of a list of events."""
     if not events:
-        typer.echo('No upcoming events found.')
+        typer.echo('No events found.')
 
     else:
         for event in events:
@@ -119,6 +134,7 @@ def get_event_by_id(event_id: str):
     try:
         event = service.events().get(calendarId='primary', eventId=event_id).execute()
         typer.echo(Event.convert_to_event(event))
+
     except HttpError as error:
         if error.resp.status == 404:
             typer.echo(f"Event with ID {event_id} not found.")
