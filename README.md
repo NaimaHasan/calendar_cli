@@ -6,15 +6,16 @@ This project is a command-line interface (CLI) application built with Python's T
 
 - **Add Event**: Create a new event with optional invitee.
 - **Delete Event**: Remove an event by its ID.
-- **Update Event**: Modify an event's details.
+- **Add Recurring Event**:  Create a new recurring event with optional invitee.
 - **List Events**: View a list of upcoming events.
+- **Get Event By ID**: View details of an event, searching by its ID
 
 ## Installation
 
 1. **Clone the repository**:
     ```bash
-    git clone linkkk
-    cd google-calendar-cli
+    git clone https://github.com/NaimaHasan/calendar_cli
+    cd calendar_cli
     ```
 
 2. **Set up a virtual environment**:
@@ -61,6 +62,11 @@ python cli.py add-recurring-event
 python cli.py list-upcoming-events 
 ```
 
+### Get Event By ID
+
+```bash
+python cli.py get-event-by-id id
+```
 ## Authentication
 
 The first time you run any command, you will be prompted to authenticate with your Google account. This will generate a `token.json` file that stores your access and refresh tokens. Make sure `credentials.json` is in the root directory of the project.

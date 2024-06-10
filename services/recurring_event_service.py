@@ -1,17 +1,32 @@
 import typer
-from datetime import datetime
 
 
-def get_recurrence_rule():
+def add_recurrence_rule():
+    """
+    Prompts the user to create a recurrence rule for an event.
+
+    Returns:
+    --------
+    recurrence_rule : List[str]
+        A list containing a single recurrence rule string.
+    """
     frequency = get_frequency()
     interval = typer.prompt("\nInterval", type=int)
     count = typer.prompt("\nNumber of occurrences", type=int)
-    recurrence = [f"RRULE:FREQ={frequency};INTERVAL={interval};COUNT={count}"]
+    recurrence_rule = [f"RRULE:FREQ={frequency};INTERVAL={interval};COUNT={count}"]
 
-    return recurrence
+    return recurrence_rule
 
 
 def get_frequency() -> str:
+    """
+   Prompts the user to select a frequency for the recurrence rule.
+
+   Returns:
+   --------
+   frequency : str
+       The selected frequency as a string (e.g., "DAILY", "WEEKLY", "MONTHLY", "YEARLY").
+   """
     frequency_map = {
         1: "DAILY",
         2: "WEEKLY",
