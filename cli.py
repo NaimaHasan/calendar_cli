@@ -48,8 +48,7 @@ def delete_event(event_id: Annotated[str, typer.Option(prompt=True)]):
 @app.command()
 def list_upcoming_events(max_results: Annotated[int, typer.Option(prompt=True)]):
     """List upcoming events in the primary calendar."""
-    events = event_service.get_upcoming_events(max_results)
-    event_service.print_events(events)
+    event_service.get_upcoming_events(max_results)
 
 
 @app.command()

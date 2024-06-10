@@ -3,6 +3,7 @@ from datetime import datetime
 from services import calendar_service
 from models.event import Event
 from googleapiclient.errors import HttpError
+from httplib2 import ServerNotFoundError
 
 
 def add_attendee():
@@ -67,6 +68,10 @@ def create_event(event):
 
     except HttpError as e:
         typer.echo(f"An error occurred: {e}")
+    except ConnectionError:
+        typer.echo("No internet connection. Please check your network connection and try again.")
+    except ServerNotFoundError:
+        typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
 
 
 def delete_event(event_id):
@@ -81,6 +86,10 @@ def delete_event(event_id):
             typer.echo(f"Event with ID {event_id} not found.")
         else:
             typer.echo(f"An error occurred: {e}")
+    except ConnectionError:
+        typer.echo("No internet connection. Please check your network connection and try again.")
+    except ServerNotFoundError:
+        typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
 
 
 def get_upcoming_events(max_results):
@@ -105,12 +114,14 @@ def get_upcoming_events(max_results):
                                               maxResults=max_results, singleEvents=True,
                                               orderBy='startTime').execute()
         events = events_result.get('items', [])
-
-        return events
+        print_events(events)
 
     except HttpError as e:
         typer.echo(f"An error occurred: {e}")
-        return []
+    except ConnectionError:
+        typer.echo("No internet connection. Please check your network connection and try again.")
+    except ServerNotFoundError:
+        typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
 
 
 def print_events(events):
@@ -140,3 +151,7 @@ def get_event_by_id(event_id: str):
             typer.echo(f"Event with ID {event_id} not found.")
         else:
             typer.echo(f"An error occurred: {error}")
+    except ConnectionError:
+        typer.echo("No internet connection. Please check your network connection and try again.")
+    except ServerNotFoundError:
+        typer.echo("Unable to connect to the Google Calendar server. Please try again later.")
